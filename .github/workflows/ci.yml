@@ -3,7 +3,7 @@ name: Dynamic Pytest Workflow
 on:
   pull_request:
     branches:
-      - master
+      - main
 
 jobs:
   test:
@@ -26,21 +26,19 @@ jobs:
 
     - name: Check for changes in files
       id: check_changes
-      run: echo "changed_files=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})" >> $GITHUB_ENV
+      run: echo "CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})" >> $GITHUB_ENV
 
     - name: Filter tests based on changes
       id: filter_tests
       run: |
         # Modify the command below based on your project structure
-        echo "affected_files=$(echo "${changed_files}" | grep '^src/.*\.py$\|^tests/.*\.py$' || true)" >> $GITHUB_ENV
+        echo "AFFECTED_FILES=$(echo "${CHANGED_FILES}" | grep '^src/.*\.py$\|^tests/.*\.py$' || true)" >> $GITHUB_ENV
 
     - name: Run only affected tests
-      if: env.affected_files != ''
+      if: env.AFFECTED_FILES != ''
       run: |
         # Install pytest-xdist for parallel test execution
         pip install pytest-xdist
 
         # Run tests in parallel for affected files
-        pytest -k "${affected_files}" -n auto
-
-
+        pytest -k "${AFFECTED_FILES}" -n auto
