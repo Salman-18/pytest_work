@@ -34,6 +34,6 @@ jobs:
         for file in $changed_files; do
           # Check if the file is a test file
           if [[ $file == *"tests/"* && $file == *"test_"* && $file == *".py" ]]; then
-            pytest -v -x "$file"
+            pytest -v  "$file"
           fi
         done
