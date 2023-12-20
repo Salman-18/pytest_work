@@ -1,13 +1,14 @@
+name: Dynamic Pytest Workflow
+
 on:
   pull_request:
-    paths:
-      - 'src/**/*.py'
-      - 'tests/**/*.py'
+    branches:
+      - master
 
 jobs:
   test:
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
@@ -18,22 +19,29 @@ jobs:
         python-version: 3.8
 
     - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
+      run: pip install -r requirements.txt  # Adjust based on your project setup
 
- 
-    - name: Determine affected files
-      run: |
-        changed_files=$(git diff --name-only ${{ github.event.before }}..${{ github.sha }})
-        echo "::set-output name=files::${changed_files}"
+    - name: Run tests
+      run: pytest
 
-    - name: Run affected tests
+    - name: Check for changes in files
+      id: check_changes
+      run: echo "::set-output name=changed_files::$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})"
+
+    - name: Filter tests based on changes
+      id: filter_tests
       run: |
-        # Use the output variable from the previous step
-        for file in ${{ steps.determine-affected-files.outputs.files }}; do
-          if [[ $file == *"tests/"* && $file == *"test_"* && $file == *".py" ]]; then
-            pytest "$file"
-          fi
-        done
+        # Modify the command below based on your project structure
+        affected_files=$(echo "${{ steps.check_changes.outputs.changed_files }}" | grep '^src/.*\.py$\|^tests/.*\.py$' || true)
+        echo "::set-output name=affected_files::$affected_files"
+
+    - name: Run only affected tests
+      if: steps.filter_tests.outputs.affected_files != ''
+      run: |
+        # Install pytest-xdist for parallel test execution
+        pip install pytest-xdist
+
+        # Run tests in parallel for affected files
+        pytest -k "${{ steps.filter_tests.outputs.affected_files }}" -n auto
+
 
