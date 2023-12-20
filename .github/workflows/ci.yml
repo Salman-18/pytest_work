@@ -28,7 +28,7 @@ jobs:
       id: affected-files
       run: |
         echo "Determine affected files"
-        base_commit=$(git rev-parse HEAD^)
+        base_commit=$(git log --pretty=format:"%H" -n 1 HEAD^)
         echo "::set-output name=files::$(git diff $base_commit HEAD --name-only)"
 
     - name: Print debug information
