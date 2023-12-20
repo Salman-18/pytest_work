@@ -26,22 +26,21 @@ jobs:
 
     - name: Check for changes in files
       id: check_changes
-      run: echo "::set-output name=changed_files::$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})"
+      run: echo "changed_files=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})" >> $GITHUB_ENV
 
     - name: Filter tests based on changes
       id: filter_tests
       run: |
         # Modify the command below based on your project structure
-        affected_files=$(echo "${{ steps.check_changes.outputs.changed_files }}" | grep '^src/.*\.py$\|^tests/.*\.py$' || true)
-        echo "::set-output name=affected_files::$affected_files"
+        echo "affected_files=$(echo "${changed_files}" | grep '^src/.*\.py$\|^tests/.*\.py$' || true)" >> $GITHUB_ENV
 
     - name: Run only affected tests
-      if: steps.filter_tests.outputs.affected_files != ''
+      if: env.affected_files != ''
       run: |
         # Install pytest-xdist for parallel test execution
         pip install pytest-xdist
 
         # Run tests in parallel for affected files
-        pytest -k "${{ steps.filter_tests.outputs.affected_files }}" -n auto
+        pytest -k "${affected_files}" -n auto
 
 
