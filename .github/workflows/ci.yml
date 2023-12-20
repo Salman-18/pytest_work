@@ -29,12 +29,15 @@ jobs:
         # Determine the affected files
         changed_files=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})
 
+        # Print debug information
+        echo "Changed files:"
+        echo "$changed_files"
 
         # Run tests for each affected test file
         for file in $changed_files; do
-        # Check if the file is a test file
-            if [[ $file == *"tests/"* && $file == *"test_"* && $file == *".py" ]]; then
-            echo "Running tests for $file"
-              pytest -v "$file"
-                fi
-             done
+          # Check if the file is a test file
+          if [[ $file == *"tests/"* && $file == *"test_"* && $file == *".py" ]]; then
+            pytest -v "$file"
+          fi
+        done
+
