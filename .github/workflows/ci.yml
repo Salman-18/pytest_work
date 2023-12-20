@@ -22,10 +22,11 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
+ 
     - name: Determine affected files
-      id: determine-affected-files
       run: |
-       git diff --name-only ${{ github.event.before }} ${{ github.sha }}
+        changed_files=$(git diff --name-only ${{ github.event.before }}..${{ github.sha }})
+        echo "::set-output name=files::${changed_files}"
 
     - name: Run affected tests
       run: |
