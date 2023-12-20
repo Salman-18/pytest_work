@@ -24,20 +24,24 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: Determine and run affected tests
+    - name: Determine affected files
+      id: affected-files
       run: |
-        # Determine the affected files
-        changed_files=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})
+        echo "Determine affected files"
+        echo "::set-output name=files::$(git diff HEAD^..HEAD --name-only)"
 
-        # Print debug information
+    - name: Print debug information
+      run: |
         echo "Changed files:"
-        echo "$changed_files"
+        echo "${{ steps.affected-files.outputs.files }}"
 
-        # Run tests for each affected test file
-        for file in $changed_files; do
+    - name: Run tests for affected files
+      run: |
+        for file in ${{ steps.affected-files.outputs.files }}; do
           # Check if the file is a test file
           if [[ $file == *"tests/"* && $file == *"test_"* && $file == *".py" ]]; then
             pytest -v "$file"
           fi
         done
+
 
