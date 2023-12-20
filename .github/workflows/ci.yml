@@ -28,7 +28,8 @@ jobs:
       id: affected-files
       run: |
         echo "Determine affected files"
-        echo "::set-output name=files::$(git diff HEAD^..HEAD --name-only)"
+        base_commit=$(git rev-parse HEAD^)
+        echo "::set-output name=files::$(git diff $base_commit HEAD --name-only)"
 
     - name: Print debug information
       run: |
@@ -43,5 +44,4 @@ jobs:
             pytest -v "$file"
           fi
         done
-
 
