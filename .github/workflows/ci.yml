@@ -33,12 +33,13 @@ jobs:
         # Replace with the actual dependencies installation command if needed
     - name: Run pytest
       run: |
-       changed_files="${{ steps.changed-files.outputs.changed_files }}"
+       changed_files=$(git show --name-only --oneline ${{ github.event.before }}..${{ github.sha }} | tail -n +2)
        echo "Changed files: $changed_files"
        if [ -z "$changed_files" ]; then
        echo "No changed files. Skipping tests."
        else
        pytest $(echo "$changed_files" | sed 's|^src/|tests/|')
        fi
+
 
 
