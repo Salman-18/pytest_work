@@ -3,7 +3,7 @@ name: Run Tests on Pull Request
 on:
   pull_request:
     branches:
-      - master
+      - main
 
 jobs:
   test:
@@ -25,7 +25,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: 3.9
+        python-version: 3.x
 
     - name: Install dependencies
       run: |
@@ -38,9 +38,8 @@ jobs:
           echo "No changed files. Skipping tests."
         else
           echo "Changed files: ${{ steps.changed-files.outputs.changed_files }}"
-          # Adjust the following line based on your project's naming convention
-          # This assumes that test files start with "test_" and have the ".py" extension
-          pytest ${{ steps.changed-files.outputs.changed_files//src\//tests/}}
+          pytest $(echo "${{ steps.changed-files.outputs.changed_files }}" | sed 's|^src/|tests/|')
         fi
+
 
 
