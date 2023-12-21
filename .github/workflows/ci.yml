@@ -35,11 +35,7 @@ jobs:
       run: |
        changed_files=$(git show --name-only --oneline ${{ github.event.before }}..${{ github.sha }} | tail -n +2)
        echo "Changed files: $changed_files"
-       if [ -z "$changed_files" ]; then
-       echo "No changed files. Skipping tests."
-       else
-       pytest $(echo "$changed_files" | sed 's|^src/|tests/|')
-       fi
+       pytest $(echo "$changed_files" | grep -E '^(src|tests)/.*\.py')
 
 
 
