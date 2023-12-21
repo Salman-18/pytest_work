@@ -25,7 +25,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: 3.x
+        python-version: 3.9
 
     - name: Install dependencies
       run: |
@@ -34,12 +34,13 @@ jobs:
 
     - name: Run pytest
       run: |
-        if [ -z "${{ steps.changed-files.outputs.changed_files }}" ]; then
-          echo "No changed files. Skipping tests."
+        changed_files="${{ steps.changed-files.outputs.changed_files }}"
+        if [ -z "$changed_files" ]; then
+        echo "No changed files. Skipping tests."
         else
-          echo "Changed files: ${{ steps.changed-files.outputs.changed_files }}"
-          pytest $(echo "${{ steps.changed-files.outputs.changed_files }}" | sed 's|^src/|tests/|')
-        fi
+           echo "Changed files: $changed_files"
+           pytest $(echo "$changed_files" | sed 's|^src/|tests/|')
+         fi
 
 
 
