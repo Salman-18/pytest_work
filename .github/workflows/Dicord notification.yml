@@ -3,7 +3,7 @@ name: Push and Pull Request Notification
 on:
   push:
     branches:
-      - main
+      - master
   pull_request:
     types:
       - opened
